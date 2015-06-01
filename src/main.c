@@ -5,11 +5,11 @@
   
 static Window *s_main_window;
 static TextLayer *s_time_layer;
-static TextLayer *s_weather_layer;
+static TextLayer *s_alert_count_layer;
 static TextLayer *s_alerts_layer;
 
 static GFont s_time_font;
-static GFont s_weather_font;
+static GFont s_alert_font;
 static GFont s_alerts_font;
 
 static ScrollLayer *s_scroll_layer;
@@ -56,12 +56,12 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
   
   // Create Alert count Layer
-  s_weather_layer = text_layer_create(GRect(0, 25, 144, 200));
-  text_layer_set_background_color(s_weather_layer, GColorBlack);
-  text_layer_set_text_color(s_weather_layer, GColorWhite);
-  text_layer_set_text_alignment(s_weather_layer, GTextAlignmentLeft);
-  text_layer_set_overflow_mode(s_weather_layer, GTextOverflowModeFill);
-  text_layer_set_text(s_weather_layer, "Loading...");
+  s_alert_count_layer = text_layer_create(GRect(0, 25, 144, 200));
+  text_layer_set_background_color(s_alert_count_layer, GColorBlack);
+  text_layer_set_text_color(s_alert_count_layer, GColorWhite);
+  text_layer_set_text_alignment(s_alert_count_layer, GTextAlignmentLeft);
+  text_layer_set_overflow_mode(s_alert_count_layer, GTextOverflowModeFill);
+  text_layer_set_text(s_alert_count_layer, "Loading...");
   
   // Create Alerts layer
   GRect bounds = layer_get_frame(window_layer);
@@ -80,8 +80,8 @@ static void main_window_load(Window *window) {
   scroll_layer_set_content_size(s_scroll_layer, GSize(bounds.size.w, max_size.h + 4));
   
   // Create second custom font, apply it and add to Window
-  text_layer_set_font(s_weather_layer, s_time_font);
-  layer_add_child(window_layer, text_layer_get_layer(s_weather_layer));
+  text_layer_set_font(s_alert_count_layer, s_time_font);
+  layer_add_child(window_layer, text_layer_get_layer(s_alert_count_layer));
   
   s_alerts_font = fonts_load_custom_font(FONT_KEY_GOTHIC_14);
   text_layer_set_font(s_alerts_layer, s_alerts_font);
@@ -105,8 +105,8 @@ static void main_window_unload(Window *window) {
   text_layer_destroy(s_alerts_layer);
   
   // Destroy weather elements
-  text_layer_destroy(s_weather_layer);
-  fonts_unload_custom_font(s_weather_font);
+  text_layer_destroy(s_alert_count_layer);
+  fonts_unload_custom_font(s_alert_font);
   scroll_layer_destroy(s_scroll_layer);
 }
 
@@ -155,7 +155,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   }
   
   // Assemble full string and display
-  text_layer_set_text(s_weather_layer, temperature_buffer);
+  text_layer_set_text(s_alert_count_layer, temperature_buffer);
   text_layer_set_text(s_alerts_layer, conditions_buffer);
   
   GRect bounds = layer_get_frame(window_get_root_layer(s_main_window));  
