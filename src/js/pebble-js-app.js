@@ -16,7 +16,6 @@ function findRules(id)
 { 
   if (typeof rules ==='object') 
   {  
-    console.log("Rules: " + JSON.stringify(rules));
     for (var i in rules.rules) {
       if (rules.rules[i].id == id) {
         return rules.rules[i].name;
