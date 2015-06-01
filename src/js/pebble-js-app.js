@@ -69,8 +69,6 @@ Pebble.addEventListener('ready',
         rules = JSON.parse(responseText);
       }
     );
-    console.log("Fetched rules: " + JSON.stringify(rules));
-    // Get the initial weather
     getAlerts();
   }
 );
@@ -79,6 +77,12 @@ Pebble.addEventListener('ready',
 Pebble.addEventListener('appmessage',
   function(e) {
     console.log("AppMessage received!");
+    var url = baseurl + "/api/v0/rules";
+    xhrRequest(url, 'GET', apikey,
+      function(responseText) {
+        rules = JSON.parse(responseText);
+      }
+    );
     getAlerts();
   }                     
 );
