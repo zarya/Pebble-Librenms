@@ -38,7 +38,7 @@
     "shortName": "LibreNMS",
     "uuid": "6991d598-b743-49d5-b8a5-2e7e8285ebed",
     "versionCode": 1,
-    "versionLabel": "1.0",
+    "versionLabel": "1.1",
     "watchapp": {
         "watchface": false
     }

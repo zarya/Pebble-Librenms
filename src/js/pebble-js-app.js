@@ -57,7 +57,7 @@ var ConfigPage = '\
   </head>\
   <body onload="put_config();">\
     <h1>LibreNMS</h1>\
-    <small>v1.0, by zarya</small>\
+    <small>v1.1, by zarya</small>\
     <hr size="1" />\
     <form action="javascript: get_config();" id="config_form">\
       Server URL\
@@ -181,7 +181,6 @@ Pebble.addEventListener("showConfiguration",
 
 Pebble.addEventListener("webviewclosed",
   function(e) {
-    var configuration = JSON.parse(e.response);
     window.localStorage.setItem('pebble-libre-config', e.response);
     config = JSON.parse(e.response);
     getAlerts();
