@@ -7,7 +7,7 @@
         "configurable"
     ],
     "companyName": "Rudy Hardeman",
-    "longName": "LibreNMS C",
+    "longName": "LibreNMS",
     "projectType": "native",
     "resources": {
         "media": [
@@ -31,7 +31,7 @@
         ]
     },
     "sdkVersion": "2",
-    "shortName": "LibreNMS C",
+    "shortName": "LibreNMS",
     "uuid": "6991d598-b743-49d5-b8a5-2e7e8285ebed",
     "versionCode": 1,
     "versionLabel": "1.0",
