@@ -35,7 +35,7 @@ function getAlerts() {
       var body = "";
       
       for (var i in json.alerts) {
-        body = body + findRules(json.alerts[i].rule_id) + ": " + json.alerts[i].hostname + "\n";
+        body = body + findRules(json.alerts[i].rule_id) + "\n  " + json.alerts[i].hostname + "\n";
       }
       
       
@@ -44,7 +44,9 @@ function getAlerts() {
         "KEY_ALERTCOUNT": json.count,
         "KEY_ALERTS": body
       };
-
+      
+      console.log(body);
+      
       // Send to Pebble
       Pebble.sendAppMessage(dictionary,
         function(e) {

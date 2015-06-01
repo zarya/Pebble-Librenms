@@ -8,6 +8,8 @@ static TextLayer *s_time_layer;
 static TextLayer *s_alert_count_layer;
 static TextLayer *s_alerts_layer;
 
+//static InverterLayer *s_inverter_layer;
+
 static Layer *window_layer;
 
 static GFont s_time_font;
@@ -64,23 +66,17 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(s_alert_count_layer));
   
   // Create Alerts scroller
-  GRect bounds = layer_get_frame(window_layer);
-  GRect max_text_bounds = GRect(0, 50, bounds.size.w, 2000);
-  
-  s_scroll_layer = scroll_layer_create(bounds);
+  s_scroll_layer = scroll_layer_create(GRect(0, 50, 145, 168-50));
   scroll_layer_set_click_config_onto_window(s_scroll_layer, window);
   
   // Create Alerts Layer
-  s_alerts_layer = text_layer_create(max_text_bounds);
-  text_layer_set_background_color(s_alerts_layer, GColorBlack);
-  text_layer_set_text_color(s_alerts_layer, GColorWhite);
-  text_layer_set_text_alignment(s_alerts_layer, GTextAlignmentLeft);
+  s_alerts_layer = text_layer_create(GRect(0, 0, 145, 2000));
+  //text_layer_set_background_color(s_alerts_layer, GColorBlack);
+  //text_layer_set_text_color(s_alerts_layer, GColorWhite);
+  //text_layer_set_overflow_mode(s_alerts_layer, GTextOverflowModeFill);
+  //text_layer_set_text_alignment(s_alerts_layer, GTextAlignmentLeft);
   text_layer_set_font(s_alerts_layer, s_alerts_font);
   
-//  GSize max_size = text_layer_get_content_size(s_alerts_layer);
-//  text_layer_set_size(s_alerts_layer, max_size);
-  
-//  scroll_layer_set_content_size(s_scroll_layer, GSize(bounds.size.w, max_size.h + 4));
   scroll_layer_add_child(s_scroll_layer, text_layer_get_layer(s_alerts_layer));
   layer_add_child(window_layer, scroll_layer_get_layer(s_scroll_layer));
 
@@ -96,7 +92,6 @@ static void main_window_unload(Window *window) {
   text_layer_destroy(s_alert_count_layer);
   fonts_unload_custom_font(s_alert_font);
   scroll_layer_destroy(s_scroll_layer);
-  layer_destroy(window_layer);
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
@@ -113,7 +108,7 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   // Store incoming information
   static char temperature_buffer[25];
-  static char conditions_buffer[200];
+  static char conditions_buffer[1024];
   
   // Read first item
   Tuple *t = dict_read_first(iterator);
@@ -126,7 +121,8 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
       snprintf(temperature_buffer, sizeof(temperature_buffer), "Alerts: %d", (int)t->value->int32);
       break;
     case KEY_CONDITIONS:
-      snprintf(conditions_buffer, sizeof(conditions_buffer), "%s", t->value->cstring);
+      //snprintf(conditions_buffer, strlen(t->value->cstring) + 1, "%s", t->value->cstring);
+      memcpy(conditions_buffer, t->value->cstring, strlen(t->value->cstring) + 1);
       break;
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
@@ -141,10 +137,16 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   text_layer_set_text(s_alert_count_layer, temperature_buffer);
   text_layer_set_text(s_alerts_layer, conditions_buffer);
   
-  GRect bounds = layer_get_frame(window_layer);
   GSize max_size = text_layer_get_content_size(s_alerts_layer);
-  text_layer_set_size(s_alerts_layer, max_size);
-  scroll_layer_set_content_size(s_scroll_layer, GSize(bounds.size.w, max_size.h + 4));
+  max_size.w = 144;
+  if (max_size.h < (168 - 50)) {
+    max_size.h = (168 - 50);
+  } else {
+    max_size.h += 20;
+  }
+  APP_LOG(APP_LOG_LEVEL_INFO, "Max size %d", (int)max_size.h);
+  text_layer_set_size(s_alerts_layer, max_size); // resize layer
+  scroll_layer_set_content_size(s_scroll_layer, GSize(max_size.w, max_size.h)); // resize scroll layer
 }
 
 static void inbox_dropped_callback(AppMessageResult reason, void *context) {
