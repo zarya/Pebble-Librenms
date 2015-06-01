@@ -1,7 +1,10 @@
 {
     "appKeys": {
-        "KEY_ALERTCOUNT": 0,
-        "KEY_ALERTS": 1
+        "KEY_ALERTCOUNT": 1,
+        "KEY_ALERTS": 2,
+        "KEY_APIKEY": 4,
+        "KEY_TYPE": 0,
+        "KEY_URL": 3
     },
     "capabilities": [
         "configurable"
@@ -11,6 +14,12 @@
     "projectType": "native",
     "resources": {
         "media": [
+            {
+                "file": "images/librenms.png",
+                "menuIcon": true,
+                "name": "IMAGE_LOGO_28",
+                "type": "png"
+            },
             {
                 "compatibility": "2.7",
                 "file": "fonts/perfect-dos-vga.ttf",

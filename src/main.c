@@ -1,7 +1,17 @@
 #include <pebble.h>
+
+enum{ //
+  KEY_TYPE,
+  KEY_ALERTCOUNT,
+  KEY_CONDITIONS,
+  KEY_URL,
+  KEY_APIKEY
+};
   
-#define KEY_ALERTCOUNT 0
-#define KEY_CONDITIONS 1
+enum { // msg type
+  MSG_PERIODIC_UPDATE,
+  MSG_CONFIG
+};  
   
 static Window *s_main_window;
 static TextLayer *s_time_layer;
@@ -66,7 +76,7 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(s_alert_count_layer));
   
   // Create Alerts scroller
-  s_scroll_layer = scroll_layer_create(GRect(0, 50, 145, 168-50));
+  s_scroll_layer = scroll_layer_create(GRect(0, 50, 145, 168-70));
   scroll_layer_set_click_config_onto_window(s_scroll_layer, window);
   
   // Create Alerts Layer
@@ -111,26 +121,34 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   static char conditions_buffer[1024];
   
   // Read first item
-  Tuple *t = dict_read_first(iterator);
-
-  // For all items
-  while(t != NULL) {
-    // Which key was received?
-    switch(t->key) {
-    case KEY_ALERTCOUNT:
-      snprintf(temperature_buffer, sizeof(temperature_buffer), "Alerts: %d", (int)t->value->int32);
-      break;
-    case KEY_CONDITIONS:
-      //snprintf(conditions_buffer, strlen(t->value->cstring) + 1, "%s", t->value->cstring);
-      memcpy(conditions_buffer, t->value->cstring, strlen(t->value->cstring) + 1);
-      break;
-    default:
-      APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
-      break;
+  Tuple *msg_type_tuple = dict_find(iterator, KEY_TYPE);
+  
+  Tuple *t = dict_read_first(iterator); 
+  
+  if (msg_type_tuple->value->uint8 == MSG_PERIODIC_UPDATE)
+  {
+    while(t != NULL) {
+      switch(t->key)
+      {
+        case KEY_ALERTCOUNT:
+          snprintf(temperature_buffer, sizeof(temperature_buffer), "Alerts: %d", (int)t->value->int32);
+          break;
+        case KEY_CONDITIONS:
+          memcpy(conditions_buffer, t->value->cstring, strlen(t->value->cstring) + 1);
+          break;
+        default:
+          break;
+      }
+      t = dict_read_next(iterator);
     }
-
-    // Look for next item
-    t = dict_read_next(iterator);
+  }
+  else if (msg_type_tuple->value->uint8 == MSG_CONFIG)
+  {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Config data");
+    Tuple *config_url_tuple = dict_find(iterator, KEY_URL);
+    APP_LOG(APP_LOG_LEVEL_INFO, "URL: %s",config_url_tuple->value->cstring);
+    Tuple *config_apikey_tuple = dict_find(iterator, KEY_APIKEY);
+    APP_LOG(APP_LOG_LEVEL_INFO, "APIKEY: %s",config_apikey_tuple->value->cstring);
   }
   
   // Assemble full string and display
@@ -139,12 +157,11 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   
   GSize max_size = text_layer_get_content_size(s_alerts_layer);
   max_size.w = 144;
-  if (max_size.h < (168 - 50)) {
-    max_size.h = (168 - 50);
+  if (max_size.h < (168 - 60)) {
+    max_size.h = (168 - 60);
   } else {
-    max_size.h += 20;
+    max_size.h += 4;
   }
-  APP_LOG(APP_LOG_LEVEL_INFO, "Max size %d", (int)max_size.h);
   text_layer_set_size(s_alerts_layer, max_size); // resize layer
   scroll_layer_set_content_size(s_scroll_layer, GSize(max_size.w, max_size.h)); // resize scroll layer
 }
